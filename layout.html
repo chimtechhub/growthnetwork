@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThriveLink - Connect and Thrive</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-color': '#4a90e2',
+                        'secondary-color': '#f39c12',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Neumorphic Styles */
+        .neumorphic {
+            background: #e0e5ec;
+            box-shadow: 9px 9px 16px rgb(163,177,198,0.6), -9px -9px 16px rgba(255,255,255, 0.5);
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .neumorphic:hover {
+            box-shadow: 6px 6px 10px rgb(163,177,198,0.6), -6px -6px 10px rgba(255,255,255, 0.5);
+        }
+
+        /* Dark Mode Styles */
+        .dark {
+            background-color: #1a202c;
+            color: #e2e8f0;
+        }
+
+        .dark .neumorphic {
+            background: #2d3748;
+            box-shadow: 9px 9px 16px rgba(0,0,0,0.6), -9px -9px 16px rgba(255,255,255,0.1);
+        }
+
+        .dark .neumorphic:hover {
+            box-shadow: 6px 6px 10px rgba(0,0,0,0.6), -6px -6px 10px rgba(255,255,255,0.1);
+        }
+
+        /* Animations */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Status Indicators */
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-indicator.online {
+            background-color: #4CAF50;
+        }
+
+        .status-indicator.offline {
+            background-color: #F44336;
+        }
+
+        /* Scrollbar Styles */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 transition-colors duration-300">
+
+<header class="bg-white shadow-md p-4 sticky top-0 z-50 transition-colors duration-300">
+    <div class="container mx-auto flex justify-between items-center">
+        <!-- Logo and Brand Name -->
+        <div class="flex items-center space-x-4">
+            <img src="https://picsum.photos/200/200?random=1" alt="Logo" class="h-10 w-10 rounded-full"> 
+            <h1 class="text-3xl font-bold text-primary-color">ThriveLink</h1>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="flex space-x-6">
+            <a href="#home" class="text-primary-color hover:underline text-lg">Home</a>
+            <a href="#dashboard" class="text-primary-color hover:underline text-lg">Dashboard</a>
+            <a href="#profile" class="text-primary-color hover:underline text-lg">Profile</a>
+            <a href="#messages" class="text-primary-color hover:underline text-lg">Messages</a>
+        </nav>
+
+        <!-- Dark Mode Toggle -->
+        <button id="darkModeToggle" class="neumorphic p-2 rounded-full">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+        </button>
+    </div>
+</header>
+
+<main class="container mx-auto mt-8 grid grid-cols-12 gap-8">
+    <aside class="col-span-3">
+        <div class="neumorphic p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-4">Trending Topics</h2>
+            <ul id="trendingTopics" class="space-y-3">
+                <!-- Trending topics will be dynamically added here -->
+            </ul>
+        </div>
+        <div class="neumorphic p-6">
+            <h2 class="text-2xl font-semibold mb-4">Categories</h2>
+            <div id="categories" class="flex flex-wrap gap-3">
+                <!-- Categories will be dynamically added here -->
+            </div>
+        </div>
+    </aside>
+
+    <section class="col-span-6">
+        <!-- Active Members Section -->
+        <div id="activeMembers" class="neumorphic px-4 py-3 mb-8 flex items-center space-x-3 overflow-x-auto">
+            <!-- Active members will be dynamically added here -->
+        </div>
+
+        <!-- User Information and Post Section -->
+        <div class="neumorphic p-6 mb-8">
+            <div class="flex space-x-4 mb-4">
+                <div id="categoryTabs" class="flex space-x-3 overflow-x-auto">
+                    <!-- Category tabs will be dynamically added here -->
+                </div>
+            </div>
+            <textarea id="postInput" class="w-full p-4 rounded-lg neumorphic resize-none" rows="3" placeholder="What's on your mind?"></textarea>
+
+            <!-- Post Button and Media Options -->
+            <div class="flex items-center space-x-4 mt-4">
+                <button id="submitPost" class="bg-primary-color text-white px-6 py-2 rounded-full hover:bg-opacity-90 transition duration-300">Post</button>
+                <label class="flex items-center cursor-pointer">
+                    <i class="fas fa-image text-primary-color text-xl mx-2"></i>
+                    <input type="file" id="imageInput" accept="image/*" class="hidden">
+                </label>
+                <label class="flex items-center cursor-pointer">
+                    <i class="fas fa-video text-primary-color text-xl mx-2"></i>
+                    <input type="text" id="videoInput" class="hidden" placeholder="Paste video URL">
+                </label>
+            </div>
+        </div>
+
+        <div id="posts" class="space-y-8">
+            <!-- Posts will be dynamically added here -->
+        </div>
+        <div id="loadMore" class="text-center mt-8">
+            <button class="bg-secondary-color text-white px-6 py-2 rounded-full hover:bg-opacity-90 transition duration-300">Load More</button>
+        </div>
+    </section>
+
+    <aside class="col-span-3">
+        <div class="neumorphic p-6">
+            <h2 class="text-2xl font-semibold mb-4">To-Do List</h2>
+            <ul id="todoList" class="space-y-3">
+                <!-- To-do items will be dynamically added here -->
+            </ul>
+            <div class="mt-4 flex">
+                <input id="todoInput" type="text" class="w-full p-2 rounded-l-lg neumorphic" placeholder="Add a new task">
+                <button id="addTodo" class="bg-primary-color text-white px-4 py-2 rounded-r-lg hover:bg-opacity-90 transition duration-300">Add</button>
+            </div>
+        </div>
+    </aside>
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const body = document.body;
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const trendingTopics = document.getElementById('trendingTopics');
+    const categories = document.getElementById('categories');
+    const categoryTabs = document.getElementById('categoryTabs');
+    const postInput = document.getElementById('postInput');
+    const submitPost = document.getElementById('submitPost');
+    const posts = document.getElementById('posts');
+    const loadMore = document.getElementById('loadMore');
+    const todoList = document.getElementById('todoList');
+    const todoInput = document.getElementById('todoInput');
+    const addTodo = document.getElementById('addTodo');
+    const activeMembers = document.getElementById('activeMembers');
+
+    // Dark mode toggle
+    darkModeToggle.addEventListener('click', () => {
+        body.classList.toggle('dark');
+        gsap.to('body', {backgroundColor: body.classList.contains('dark') ? '#1a202c' : '#f7fafc', duration: 0.5});
+    });
+
+    // Add trending topics
+    const topics = ['Web Development', 'AI and Machine Learning', 'Cryptocurrency', 'Climate Change', 'Mental Health'];
+    topics.forEach((topic, index) => {
+        const li = document.createElement('li');
+        li.textContent = topic;
+        li.className = 'cursor-pointer hover:text-primary-color transition duration-300';
+        trendingTopics.appendChild(li);
+        gsap.from(li, {opacity: 0, x: -50, duration: 0.5, delay: index * 0.1});
+    });
+
+    // Add categories
+    const categoryList = ['Technology', 'Science', 'Health', 'Business', 'Entertainment'];
+    categoryList.forEach((cat, index) => {
+        const div = document.createElement('div');
+        div.textContent = cat;
+        div.className = 'category-pill bg-primary-color text-white px-4 py-2 rounded-full cursor-pointer hover:bg-opacity-80 transition duration-300';
+        categories.appendChild(div);
+
+        const tab = document.createElement('button');
+        tab.textContent = cat;
+        tab.className = 'category-pill bg-gray-200 px-4 py-2 rounded-full hover:bg-primary-color hover:text-white transition duration-300';
+        categoryTabs.appendChild(tab);
+
+        gsap.from(div, {opacity: 0, y: 20, duration: 0.5, delay: index * 0.1});
+        gsap.from(tab, {opacity: 0, y: 20, duration: 0.5, delay: index * 0.1});
+    });
+
+    // Post submission
+    submitPost.addEventListener('click', () => {
+        const content = postInput.value.trim();
+        if (content) {
+            addPost(content);
+            postInput.value = '';
+        }
+    });
+
+    function addPost(content) {
+        const post = document.createElement('div');
+        post.className = 'post-card neumorphic p-6';
+        post.innerHTML = `
+            <div class="flex items-center mb-4">
+                <img src="https://picsum.photos/50/50?random=${Math.random()}" alt="Profile" class="w-12 h-12 rounded-full mr-4">
+                <div>
+                    <h3 class="font-semibold">User Name</h3>
+                    <p class="text-sm text-gray-500">Just now</p>
+                </div>
+            </div>
+            <p>${content}</p>
+            <div class="mt-4 flex space-x-4">
+                <button class="text-primary-color hover:underline">Like</button>
+                <button class="text-primary-color hover:underline">Comment</button>
+                <button class="text-primary-color hover:underline">Share</button>
+            </div>
+        `;
+        posts.insertBefore(post, posts.firstChild);
+        gsap.from(post, {duration: 0.5, y: 50, opacity: 0, ease: "back.out(1.7)"});
+    }
+
+    // Load more posts
+    loadMore.addEventListener('click', () => {
+        for (let i = 0; i < 3; i++) {
+            addPost('This is a sample post content. #ThriveLink');
+        }
+    });
+
+    // To-do list functionality
+    addTodo.addEventListener('click', () => {
+        const task = todoInput.value.trim();
+        if (task) {
+            const li = document.createElement('li');
+            li.className = 'flex items-center space-x-2';
+            li.innerHTML = `
+                <input type="checkbox" class="form-checkbox h-5 w-5 text-primary-color">
+                <span>${task}</span>
+                <button class="ml-auto text-red-500 hover:text-red-700" onclick="this.parentElement.remove()">Delete</button>
+            `;
+            todoList.appendChild(li);
+            todoInput.value = '';
+            gsap.from(li, {duration: 0.5, x: -50, opacity: 0, ease: "back.out(1.7)"});
+        }
+    });
+
+    // Add active members
+    const members = [
+        {name: 'Alice', status: 'online'},
+        {name: 'Bob', status: 'offline'},
+        {name: 'Charlie', status: 'online'},
+        {name: 'Diana', status: 'offline'},
+        {name: 'Eve', status: 'online'}
+    ];
+
+    members.forEach((member, index) => {
+        const div = document.createElement('div');
+        div.className = 'flex items-center space-x-1';
+        div.innerHTML = `
+            <span class="status-indicator ${member.status}"></span>
+            <img src="https://picsum.photos/32/32?random=${index}" alt="${member.name}" class="h-8 w-8 rounded-full border-2 border-white">
+            <span class="text-sm">${member.name}</span>
+        `;
+        activeMembers.appendChild(div);
+        gsap.from(div, {opacity: 0, x: 20, duration: 0.5, delay: index * 0.1});
+    });
+
+    // Initialize with some posts
+    for (let i = 0; i < 3; i++) {
+        addPost('Welcome to ThriveLink! Connect, share, and thrive together. #CommunityGrowth');
+    }
+
+    // Add float animation to certain elements
+    gsap.to('.float-animation', {y: -10, duration: 1.5, repeat: -1, yoyo: true, ease: "power1.inOut"});
+});
+</script>
+</body>
+</html>

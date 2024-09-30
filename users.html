@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ThriveLink | Users</title>
+  <!-- Vuetify CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.6.7/dist/vuetify.min.css" rel="stylesheet">
+  <!-- Material Design Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+  <!-- Vue.js -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+  <!-- Vuetify JS -->
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.6.7/dist/vuetify.js"></script>
+  <!-- Vue Router -->
+  <script src="https://cdn.jsdelivr.net/npm/vue-router@3.5.1/dist/vue-router.js"></script>
+
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@1.0.0-beta.14/build/player/lottie-player.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.7.1/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+      @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+      .neumorphic {
+            box-shadow: 8px 8px 16px #b3b3b3, -8px -8px 16px #ffffff;
+            border-radius: 12px;
+            padding: 16px;
+            background: #f0f0f3;
+            transition: all 0.3s ease;
+        }
+
+        .neumorphic:hover {
+            box-shadow: 12px 12px 20px #a3a3a3, -12px -12px 20px #ffffff;
+        }
+
+        .neumorphic-inset {
+            box-shadow: inset 8px 8px 16px #b3b3b3, inset -8px -8px 16px #ffffff;
+            border-radius: 12px;
+            padding: 16px;
+            background: #f0f0f3;
+        }
+
+        .dark-mode .neumorphic, .dark-mode .neumorphic-inset {
+            box-shadow: 8px 8px 16px #2a2a2a, -8px -8px 16px #404040;
+            background: #303030;
+        }
+
+        .dark-mode .neumorphic:hover {
+            box-shadow: 12px 12px 20px #1a1a1a, -12px -12px 20px #505050;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .dark-mode .glassmorphism {
+            background: rgba(0, 0, 0, 0.25);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+</style>
+</head>
+<body>
+  <div id="app">
+    <!-- Navigation Bar -->
+    <v-app>
+      <v-app-bar app color="black" dark>
+        <v-app-bar-nav-icon @click="drawer = !drawer" class="hidden-md-and-up">
+          <v-icon>mdi-menu</v-icon>
+        </v-app-bar-nav-icon>
+        <v-img src="/images/logo.png" alt="ThriveLink Logo" max-height="50" contain class="mr-4"></v-img>
+        <v-toolbar-title>ThriveLink</v-toolbar-title>
+        <v-spacer></v-spacer>
+        <v-toolbar-items class="hidden-sm-and-down">
+          <v-btn text to="/">Home</v-btn>
+          <v-btn text to="/blog">Blog</v-btn>
+          <v-btn outlined v-if="!currentUser" to="/login">Login</v-btn>
+          <v-btn outlined v-if="!currentUser" to="/register">Register</v-btn>
+          <v-btn text v-if="currentUser" @click="logout">Logout</v-btn>
+        </v-toolbar-items>
+      </v-app-bar>
+
+      <!-- Navigation Drawer -->
+      <v-navigation-drawer v-model="drawer" app temporary>
+        <v-list>
+          <v-list-item link to="/">
+            <v-list-item-title>Home</v-list-item-title>
+          </v-list-item>
+          <v-list-item link to="/blog">
+            <v-list-item-title>Blog</v-list-item-title>
+          </v-list-item>
+          <v-list-item v-if="currentUser" @click="logout">
+            <v-list-item-title>Logout</v-list-item-title>
+          </v-list-item>
+          <v-list-item v-if="!currentUser" link to="/login">
+            <v-list-item-title>Login</v-list-item-title>
+          </v-list-item>
+          <v-list-item v-if="!currentUser" link to="/register">
+            <v-list-item-title>Register</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-navigation-drawer>
+
+      <!-- Main Content -->
+      <v-main>
+        <router-view></router-view>
+      </v-main>
+
+      <!-- Footer -->
+      <v-footer app color="black" dark>
+        <v-col class="text-center" cols="12">
+          © 2024 ThriveLink - Mentor-Mentee Web App
+        </v-col>
+      </v-footer>
+    </v-app>
+  </div>
+
+  <script>
+    // Simulated User Data
+    let currentUser = null; // Set to an object with user data if logged in
+
+    // Authentication Guard for Routes
+    const requireAuth = (to, from, next) => {
+      if (currentUser) {
+        next();
+      } else {
+        next('/login');
+      }
+    };
+
+    // Define Vue Components
+    const HomePage = {
+      template: `
+        <v-container>
+          <v-row>
+            <v-col cols="12" md="6" offset-md="3">
+              <v-card>
+                <v-img src="https://via.placeholder.com/800x400" class="white--text" height="200px">
+                  <v-card-title>Welcome to ThriveLink</v-card-title>
+                </v-img>
+                <v-card-subtitle>Connect with mentors and mentees to advance your career.</v-card-subtitle>
+                <v-card-actions>
+                  <v-btn color="primary" to="/login">Login</v-btn>
+                  <v-btn color="primary" to="/register">Register</v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-container>
+      `
+    };
+
+    const LoginPage = {
+      template: `
+        <v-container>
+          <v-row>
+            <v-col cols="12" md="6" offset-md="3">
+              <v-card>
+                <v-card-title>Login</v-card-title>
+                <v-card-text>
+                  <v-form>
+                    <v-text-field label="Email" prepend-icon="mdi-email" v-model="email"></v-text-field>
+                    <v-text-field label="Password" prepend-icon="mdi-lock" v-model="password" type="password"></v-text-field>
+                    <v-btn color="primary" @click="login">Login</v-btn>
+                  </v-form>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-container>
+      `,
+      data() {
+        return {
+          email: '',
+          password: ''
+        };
+      },
+      methods: {
+        login() {
+          if (this.email && this.password) {
+            currentUser = { role: 'mentee' }; // Change this to 'mentor' if needed
+            this.$router.push(currentUser.role === 'mentor' ? '/mentor-dashboard' : '/dashboard');
+          } else {
+            alert('Please fill in both fields.');
+          }
+        }
+      }
+    };
+
+    const RegistrationPage = {
+      template: `
+        <v-container>
+          <v-row>
+            <v-col cols="12" md="6" offset-md="3">
+              <v-card>
+                <v-card-title>Register</v-card-title>
+                <v-card-text>
+                  <v-form>
+                    <v-text-field label="Name" v-model="name"></v-text-field>
+                    <v-text-field label="Email" prepend-icon="mdi-email" v-model="email"></v-text-field>
+                    <v-text-field label="Password" prepend-icon="mdi-lock" v-model="password" type="password"></v-text-field>
+                    <v-select label="Role" :items="['mentor', 'mentee']" v-model="role"></v-select>
+                    <v-btn color="primary" @click="register">Register</v-btn>
+                  </v-form>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-container>
+      `,
+      data() {
+        return {
+          name: '',
+          email: '',
+          password: '',
+          role: ''
+        };
+      },
+      methods: {
+        register() {
+          if (this.name && this.email && this.password && this.role) {
+            currentUser = { name: this.name, role: this.role };
+            this.$router.push('/login');
+          } else {
+            alert('Please fill in all fields.');
+          }
+        }
+      }
+    };
+
+    const DashboardMentee = {
+      template: `
+        <v-container>
+          <v-row>
+            <v-col cols="12">
+              <v-card>
+                <v-card-title>Welcome, Mentee!</v-card-title>
+                <v-card-subtitle>Manage your tasks, messages, and resources here.</v-card-subtitle>
+                <v-card-text>
+                  <v-btn color="primary" to="/search-mentors">Search for Mentors</v-btn>
+                  <v-btn color="primary" to="/tasks">Tasks</v-btn>
+                  <v-btn color="primary" to="/messages">Messages</v-btn>
+                  <v-btn color="primary" to="/resources">Resources</v-btn>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-container>
+      `
+    };
+
+    const DashboardMentor = {
+      template: `
+        <v-container>
+          <v-row>
+            <v-col cols="12">
+              <v-card>
+                <v-card-title>Welcome, Mentor!</v-card-title>
+                <v-card-subtitle>Manage your mentees, tasks, and meetings here.</v-card-subtitle>
+                <v-card-text>
+                  <v-btn color="primary" to="/mentee-profiles">Mentee Profiles</v-btn>
+                  <v-btn color="primary" to="/mentor-requests">Mentor Requests</v-btn>
+                  <v-btn color="primary" to="/tasks">Manage Tasks</v-btn>
+                  <v-btn color="primary" to="/scheduler">Schedule Meetings</v-btn>
+                  <v-btn color="primary" to="/messages">Messages</v-btn>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-container>
+      `
+    };
+
+    const BlogPage = {
+      template: `
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-5 gap-4">
+            <!-- Left Sidebar -->
+            <aside class="col-span-1">
+                <!-- Trending Topics -->
+                <div class="neumorphic mb-4 p-4 animate-float">
+                    <h2 class="text-xl font-semibold mb-2 dark:text-white">Trending Topics</h2>
+                    <ul id="trendingTopics" class="space-y-2">
+                        <li class="dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-300 cursor-pointer">#AI2024</li>
+                        <li class="dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-300 cursor-pointer">#ClimateAction</li>
+                        <li class="dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-300 cursor-pointer">#Web3Revolution</li>
+                        <li class="dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-300 cursor-pointer">#MentalHealthMatters</li>
+                        <li class="dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-300 cursor-pointer">#MarsColony</li>
+                    </ul>
+                </div>
+
+                <!-- Categories -->
+                <div class="neumorphic p-4">
+                    <h2 class="text-xl font-semibold mb-2 dark:text-white">Categories</h2>
+                    <div id="categories" class="flex flex-wrap gap-2">
+                        <span class="px-3 py-1 bg-blue-500 text-white rounded-full text-sm cursor-pointer hover:bg-blue-600 transition-colors duration-300">Technology</span>
+                        <span class="px-3 py-1 bg-green-500 text-white rounded-full text-sm cursor-pointer hover:bg-green-600 transition-colors duration-300">Environment</span>
+                        <span class="px-3 py-1 bg-yellow-500 text-white rounded-full text-sm cursor-pointer hover:bg-yellow-600 transition-colors duration-300">Education</span>
+                        <span class="px-3 py-1 bg-red-500 text-white rounded-full text-sm cursor-pointer hover:bg-red-600 transition-colors duration-300">Health</span>
+                        <span class="px-3 py-1 bg-purple-500 text-white rounded-full text-sm cursor-pointer hover:bg-purple-600 transition-colors duration-300">Space</span>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Feed -->
+            <main class="col-span-3">
+                <!-- Active Members -->
+                <div class="neumorphic p-4 mb-4 flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <lottie-player src="https://assets9.lottiefiles.com/packages/lf20_VxYRxH.json" background="transparent" speed="1" style="width: 50px; height: 50px;" loop autoplay></lottie-player>
+                        <span id="activeUsers" class="dark:text-gray-300">32 members online</span>
+                    </div>
+                </div>
+
+                <!-- Categories and Post Input -->
+                <div class="neumorphic p-4 mb-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex space-x-2 overflow-x-auto">
+                            <button class="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-full dark:text-white hover:bg-blue-500 hover:text-white transition-colors duration-300">Technology</button>
+                            <button class="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-full dark:text-white hover:bg-blue-500 hover:text-white transition-colors duration-300">Health</button>
+                            <button class="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-full dark:text-white hover:bg-blue-500 hover:text-white transition-colors duration-300">Space</button>
+                            <button class="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-full dark:text-white hover:bg-blue-500 hover:text-white transition-colors duration-300">Education</button>
+                        </div>
+                    </div>
+                    <div id="postInputArea" class="mt-4">
+                        <textarea id="newPostInput" rows="3" placeholder="What's on your mind?" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+                        <div class="flex justify-between items-center mt-2">
+                            <div class="flex space-x-2">
+                                <button class="text-gray-500 hover:text-blue-500 transition-colors duration-300">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </button>
+                                <button class="text-gray-500 hover:text-blue-500 transition-colors duration-300">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                </button>
+                                <button class="text-gray-500 hover:text-blue-500 transition-colors duration-300">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <button id="submitPostBtn" class="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors duration-300">Post</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Posts -->
+                <div id="posts" class="space-y-4">
+                    <!-- Posts will be dynamically populated here -->
+                </div>
+
+                <!-- Load More Button -->
+                <div class="text-center mt-4">
+                    <button id="loadMoreBtn" class="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors duration-300">Load more posts</button>
+                </div>
+            </main>
+
+            <!-- Right Sidebar -->
+            <aside class="col-span-1">
+                <div class="neumorphic p-4">
+                    <h2 class="text-xl font-semibold mb-2 dark:text-white">To-Do List</h2>
+                    <div class="flex space-x-2 mb-4">
+                        <input type="text" id="newTodoInput" placeholder="Add a new task" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button id="addTodoBtn" class="px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors duration-300">Add</button>
+                    </div>
+                    <ul id="todoList" class="space-y-2">
+                        <li class="dark:text-gray-300 flex items-center justify-between">
+                            <span>Prepare presentation for Monday</span>
+                            <button class="text-red-500 hover:text-red-600 transition-colors duration-300">❌</button>
+                        </li>
+                        <li class="dark:text-gray-300 flex items-center justify-between">
+                            <span>Review the space project draft</span>
+                            <button class="text-red-500 hover:text-red-600 transition-colors duration-300">❌</button>
+                        </li>
+                        <li class="dark:text-gray-300 flex items-center justify-between">
+                            <span>Complete the online AI course</span>
+                            <button class="text-red-500 hover:text-red-600 transition-colors duration-300">❌</button>
+                        </li>
+                    </ul>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- Comment Modal -->
+    <div id="commentModal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 hidden">
+        <div class="neumorphic p-6 w-96">
+            <h2 class="text-xl font-semibold dark:text-white mb-2">Add a Comment</h2>
+            <textarea id="commentInput" rows="4" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Write your comment here..."></textarea>
+            <div class="flex justify-end space-x-2 mt-4">
+                <button id="closeCommentModal" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-full hover:bg-gray-400 transition-colors duration-300">Cancel</button>
+                <button id="submitCommentBtn" class="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors duration-300">Submit</button>
+            </div>
+        </div>
+    </div>
+        
+    `
+  };
+
+    
+
+    // Configure Vue Router
+    const router = new VueRouter({
+      routes: [
+        { path: '/', component: HomePage },
+        { path: '/login', component: LoginPage },
+        { path: '/register', component: RegistrationPage },
+        { path: '/dashboard', component: DashboardMentee, beforeEnter: requireAuth },
+        { path: '/mentor-dashboard', component: DashboardMentor, beforeEnter: requireAuth },
+        { path: '/blog', component: BlogPage }
+      ]
+    });
+
+    // Create Vue Instance
+    new Vue({
+      vuetify: new Vuetify(),
+      router,
+      el: '#app',
+      data() {
+        return {
+          drawer: false,
+          currentUser
+        };
+      },
+      methods: {
+        logout() {
+          currentUser = null;
+          this.$router.push('/');
+        }
+      },
+      watch: {
+        currentUser(value) {
+          if (value) {
+            this.$router.push(value.role === 'mentor' ? '/mentor-dashboard' : '/dashboard');
+          }
+        }
+      }
+    });
+  </script>
+  
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Event Scheduler Dashboard</title>
+
+    <!-- Vuetify CSS CDN -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/vuetify@2.5.10/dist/vuetify.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Tailwind CSS CDN -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Material Design Icons -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Vue.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+
+    <!-- Vuetify JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.5.10/dist/vuetify.min.js"></script>
+
+    <style>
+      body {
+        background-color: #1c1e2b;
+        color: white;
+      }
+
+      .event-block {
+        color: white;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <v-app>
+        <v-container fluid>
+          <v-row class="mt-10">
+            <!-- Sidebar -->
+            <v-col cols="3">
+              <!-- Calendar Section -->
+              <v-card class="pa-4 mb-6" dark>
+                <v-toolbar flat>
+                  <v-toolbar-title>Calendar</v-toolbar-title>
+                </v-toolbar>
+                <v-date-picker v-model="selectedDate" @input="fetchEvents" color="deep-purple accent-4"></v-date-picker>
+              </v-card>
+
+              <!-- Upcoming Events Section -->
+              <v-card class="pa-4" dark>
+                <v-toolbar flat>
+                  <v-toolbar-title>Upcoming Events</v-toolbar-title>
+                </v-toolbar>
+                <v-list dense>
+                  <v-list-item v-for="event in upcomingEvents" :key="event.id">
+                    <v-list-item-content>
+                      <v-list-item-title class="white--text">{{ event.title }}</v-list-item-title>
+                      <v-list-item-subtitle class="white--text">{{ event.time }} - {{ event.status }}</v-list-item-subtitle>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list>
+              </v-card>
+            </v-col>
+
+            <!-- Timeline Section -->
+            <v-col cols="9">
+              <v-row justify="space-between" class="mb-4">
+                <v-select
+                  :items="filters.brands"
+                  v-model="selectedBrand"
+                  label="Brand"
+                  class="mr-2"
+                  dark
+                  filled
+                ></v-select>
+                <v-select
+                  :items="filters.time"
+                  v-model="selectedTime"
+                  label="Time"
+                  class="mr-2"
+                  dark
+                  filled
+                ></v-select>
+                <v-select
+                  :items="filters.status"
+                  v-model="selectedStatus"
+                  label="Status"
+                  dark
+                  filled
+                ></v-select>
+              </v-row>
+
+              <v-sheet v-for="event in dayEvents" :key="event.id" :class="['event-block', event.color]" elevation="2">
+                <v-row>
+                  <v-col cols="2">
+                    <div>{{ event.time }}</div>
+                  </v-col>
+                  <v-col cols="10">
+                    <div class="font-bold text-lg">{{ event.title }}</div>
+                    <div>{{ event.status }}</div>
+                  </v-col>
+                </v-row>
+              </v-sheet>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-app>
+    </div>
+
+    <script>
+      new Vue({
+        el: '#app',
+        vuetify: new Vuetify(),
+        data() {
+          return {
+            selectedDate: new Date().toISOString().substr(0, 10),
+            selectedBrand: '',
+            selectedTime: '',
+            selectedStatus: '',
+            filters: {
+              brands: ['Toyota', 'Honda', 'BMW', 'Audi'],
+              time: ['Morning', 'Afternoon', 'Evening'],
+              status: ['Pending', 'In Progress', 'Completed'],
+            },
+            upcomingEvents: [
+              {
+                id: 1,
+                title: 'Drift Series First Round',
+                time: '08:00 AM',
+                status: 'Pending',
+              },
+              {
+                id: 2,
+                title: 'Moto Track Day',
+                time: '10:00 AM',
+                status: 'In Progress',
+              },
+            ],
+            dayEvents: [
+              {
+                id: 1,
+                title: 'Moto Track Day',
+                time: '08:00 AM',
+                status: 'In Progress',
+                color: 'bg-purple-600',
+              },
+              {
+                id: 2,
+                title: 'Drift Series Second Round',
+                time: '09:45 AM',
+                status: 'Pending',
+                color: 'bg-green-600',
+              },
+              {
+                id: 3,
+                title: 'Private Event',
+                time: '02:00 PM',
+                status: 'Completed',
+                color: 'bg-red-500',
+              },
+            ],
+          };
+        },
+        methods: {
+          fetchEvents() {
+            // Logic for fetching events based on the selected date
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

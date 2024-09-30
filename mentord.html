@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MentorHub - Your Ultimate Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="/css/dash.css">
+    <link rel="stylesheet" href="/css/blog.css">
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .btn-submit {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<header class="bg-white shadow-md p-4 sticky top-0 z-50">
+    <div class="container mx-auto flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+            <img src="/images/logo.png" alt="ThriveLink Logo" class="h-10 w-10">
+            <h1 class="text-3xl font-bold text-primary-color">ThriveLink</h1>
+        </div>
+        <button id="mobileMenuButton" class="text-primary-color md:hidden" aria-label="Open mobile menu">
+            <i class="fas fa-bars fa-lg"></i>
+        </button>
+        <nav id="mainNav" class="hidden md:flex space-x-6">
+            <a href="blog.html" class="text-primary-color hover:underline text-lg">Home</a>
+
+        </nav>
+    </div>
+    <nav id="mobileMenu" class="md:hidden bg-white shadow-md hidden">
+        <div class="flex flex-col p-4">
+            <a href="blog.html" class="text-primary-color hover:underline text-lg py-2">Home</a>
+
+        </div>
+    </nav>
+</header>
+
+<button id="darkModeToggle" class="btn absolute top-4 right-4 p-2 text-gray-600 dark:text-gray-300">
+    <i class="fas fa-moon"></i>
+</button>
+
+<div class="notification-center absolute top-4 right-16">
+    <div class="notification-icon relative p-2 cursor-pointer text-gray-600 dark:text-gray-300">
+        <i class="fas fa-bell"></i>
+        <span class="notification-count absolute top-0 right-0 bg-red-500 text-white rounded-full px-2 py-1 text-xs">3</span>
+    </div>
+    <div class="notification-dropdown hidden absolute right-0 bg-white shadow-lg p-4 rounded-lg dark:bg-gray-800 dark:text-gray-300">
+        <div class="notification-item py-2">New booking request from Alex</div>
+        <div class="notification-item py-2">Session reminder: Web Dev 101 in 1 hour</div>
+        <div class="notification-item py-2">You received a new review!</div>
+    </div>
+</div>
+    <div class="container-dash">
+        <aside class="sidebar">
+            <h2>Mentor Zone</h2>
+            <ul>
+                <li id="dashboardLink"><a href="#" onclick="showPage('dashboard')"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li id="scheduleLink"><a href="#" onclick="showPage('schedule')"><i class="fas fa-calendar-alt"></i> Schedule</a></li>
+                <li id="menteesLink"><a href="#" onclick="showPage('mentees')"><i class="fas fa-users"></i> Mentees</a></li>
+                <li id="messagesLink"><a href="#" onclick="showPage('messages')"><i class="fas fa-comment-dots"></i> Messages</a></li>
+                <li id="settingsLink"><a href="#" onclick="showPage('settings')"><i class="fas fa-cog"></i> Settings</a></li>
+            </ul>
+        </aside>
+        <main class="main-content">
+            <header class="header">
+                <h1>Welcome back, Sarah!</h1>
+                <div class="user-info">
+                    <img src="https://picsum.photos/200/200?random=1" alt="Profile Picture">
+                    <span>Sarah Johnson</span>
+                </div>
+            </header>
+            <section class="quick-actions">
+                <button class="btn" id="viewProfileBtn"><i class="fas fa-user"></i> View my profile</button>
+                <button class="btn" id="createSessionBtn"><i class="fas fa-plus"></i> Create a session</button>
+                <button class="btn" id="sendNotesBtn"><i class="fas fa-paper-plane"></i> Send Notes</button>
+            </section>
+            <div id="dashboard" class="page active">
+                <h3 class="fade-in">Your impact at a glance</h3>
+                <section class="stats-grid">
+                    <div class="stat-card fade-in">
+                        <h3>Total Sessions</h3>
+                        <p>248</p>
+                    </div>
+                    <div class="stat-card fade-in">
+                        <h3>Mentees</h3>
+                        <p>52</p>
+                    </div>
+                    <div class="stat-card fade-in">
+                        <h3>Avg. Rating</h3>
+                        <p>4.9 / 5</p>
+                    </div>
+                    <div class="stat-card fade-in">
+                        <h3>Hours Mentored</h3>
+                        <p>372</p>
+                    </div>
+                </section>
+                <section class="charts-container">
+                    <div class="chart-card fade-in">
+                        <canvas id="bookingsChart"></canvas>
+                    </div>
+                    <div class="chart-card fade-in">
+                        <canvas id="rsvpsChart"></canvas>
+                    </div>
+                </section>
+            </div>
+            <div id="schedule" class="page">
+                <h2>Schedule Page</h2>
+                <p>This is the schedule page content.</p>
+            </div>
+            <div id="mentees" class="page">
+                <h2>Mentees Page</h2>
+                <p>This is the mentees page content.</p>
+                <!-- Example Mentees List -->
+                <div class="form-group">
+                    <label for="menteeSelect">Select Mentees</label>
+                    <select id="menteeSelect" name="menteeSelect" multiple>
+                        <option value="mentee1">Mentee 1</option>
+                        <option value="mentee2">Mentee 2</option>
+                        <option value="mentee3">Mentee 3</option>
+                        <!-- Add more mentees as needed -->
+                    </select>
+                </div>
+            </div>
+            <div id="messages" class="page">
+                <h2>Messages Page</h2>
+                <p>This is the messages page content.</p>
+            </div>
+            <div id="settings" class="page">
+                <h2>Settings Page</h2>
+                <p>This is the settings page content.</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for creating a new session -->
+    <div id="newSessionModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Create a New Session</h2>
+            <form id="newSessionForm">
+                <div class="form-group">
+                    <label for="sessionTitle">Title</label>
+                    <input type="text" id="sessionTitle" name="sessionTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="sessionDate">Date</label>
+                    <input type="date" id="sessionDate" name="sessionDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="sessionTime">Time</label>
+                    <input type="time" id="sessionTime" name="sessionTime" required>
+                </div>
+                <div class="form-group">
+                    <label for="sessionDescription">Description</label>
+                    <textarea id="sessionDescription" name="sessionDescription" rows="4"></textarea>
+                </div>
+                <button type="submit" class="btn-submit">Create Session</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for sending notes and files -->
+    <div id="sendNotesModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Send Notes</h2>
+            <form id="sendNotesForm">
+                <div class="form-group">
+                    <label for="noteMessage">Message</label>
+                    <textarea id="noteMessage" name="noteMessage" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="menteeSelect">Select Mentees</label>
+                    <select id="menteeSelect" name="menteeSelect" multiple required>
+                        <option value="mentee1">Mentee 1</option>
+                        <option value="mentee2">Mentee 2</option>
+                        <option value="mentee3">Mentee 3</option>
+                        <!-- Add more mentees as needed -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="fileUpload">Attach File</label>
+                    <input type="file" id="fileUpload" name="fileUpload" required>
+                </div>
+                <button type="submit" class="btn-submit">Send Notes</button>
+            </form>
+        </div>
+    </div>
+
+
+    <script src="/js/mentedas.js"></script>
+</body>
+</html>
